@@ -9,6 +9,8 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import io.restassured.response.Response;
 
+import java.util.ArrayList;
+
 public class Test1 {
 
     public static String access_token = "";
@@ -18,7 +20,7 @@ public class Test1 {
     @BeforeSuite
     public void login() {
 
-        scObj.loginVAApp();
+     //   scObj.loginVAApp();
 
         given().
                 header("Authorization", "Basic Z3Vlc3RfaG91c2VfcHdkOmdoX3NlY3JldA==").
@@ -44,10 +46,13 @@ public class Test1 {
         System.out.println(access_token);
     }
 
-    @Test
+    @Test (priority = 1)
     public void home() {
         access_token = "Bearer ".concat(access_token);
         System.out.println("access_token : " + access_token);
+
+     //   scObj.homeVAApp();
+
         given().
                 header("Authorization", access_token).
                 get("http://application-721436538.ap-northeast-2.elb.amazonaws.com/profile/chargeCode/list").
@@ -72,10 +77,12 @@ public class Test1 {
                 then().
                 statusCode(200).
                 body("fmnoId", equalTo("123"));
+    }
 
-        // New Booking Page
+    @Test (priority = 2)
+    public void NewBooking(){
 
-        // Date
+         // Date
         // To store the response and date comparision
         Response r =
                 given().header("Authorization", access_token).
@@ -86,14 +93,14 @@ public class Test1 {
 
         int statusValue = r.path("status");
         String messageValue = r.path("message");
+        ArrayList<String> date = r.path("datesOpenForBooking");
         System.out.println("statusValue : " + statusValue);
+        System.out.println("date : " + date);
+        System.out.println("date.size : " + date.size());
+        if (date.size() < 1) {
 
-        if (statusValue == 1) {
-
-            Assert.assertEquals(messageValue, "");
+            Assert.assertEquals(SeleniumCode.date, "Sorry, currently no dates are open for booking.");
         }
-
-
     }
 
 }
